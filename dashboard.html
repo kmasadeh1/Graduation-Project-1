@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,10 +10,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body class="bg-gray-50 text-gray-800 font-sans">
 
     <div class="flex h-screen overflow-hidden">
-        
+
         <aside class="w-64 sidebar-bg text-gray-300 flex flex-col flex-shrink-0 transition-all duration-300">
             <div class="h-16 flex items-center px-6 border-b border-gray-700">
                 <i class="fa-solid fa-shield-halved text-blue-500 text-xl mr-3"></i>
@@ -20,41 +22,47 @@
             </div>
 
             <nav class="flex-1 px-2 py-4 space-y-1">
-                <a href="#" onclick="switchTab('dashboard')" id="nav-dashboard" class="sidebar-link active flex items-center px-4 py-3 text-sm font-medium rounded-md hover:bg-gray-800 hover:text-white transition">
+                <a href="#" onclick="switchTab('dashboard')" id="nav-dashboard"
+                    class="sidebar-link active flex items-center px-4 py-3 text-sm font-medium rounded-md hover:bg-gray-800 hover:text-white transition">
                     <i class="fa-solid fa-border-all mr-3 w-5"></i> Dashboard
                 </a>
-                <a href="#" onclick="switchTab('risks')" id="nav-risks" class="sidebar-link flex items-center px-4 py-3 text-sm font-medium rounded-md hover:bg-gray-800 hover:text-white transition">
+                <a href="#" onclick="switchTab('risks')" id="nav-risks"
+                    class="sidebar-link flex items-center px-4 py-3 text-sm font-medium rounded-md hover:bg-gray-800 hover:text-white transition">
                     <i class="fa-solid fa-triangle-exclamation mr-3 w-5"></i> Risks
                 </a>
-                <a href="#" onclick="switchTab('reports')" id="nav-reports" class="sidebar-link flex items-center px-4 py-3 text-sm font-medium rounded-md hover:bg-gray-800 hover:text-white transition">
+                <a href="#" onclick="switchTab('reports')" id="nav-reports"
+                    class="sidebar-link flex items-center px-4 py-3 text-sm font-medium rounded-md hover:bg-gray-800 hover:text-white transition">
                     <i class="fa-solid fa-chart-simple mr-3 w-5"></i> Reports
                 </a>
-                <a href="#" class="sidebar-link flex items-center px-4 py-3 text-sm font-medium rounded-md hover:bg-gray-800 hover:text-white transition">
+                <a href="#"
+                    class="sidebar-link flex items-center px-4 py-3 text-sm font-medium rounded-md hover:bg-gray-800 hover:text-white transition">
                     <i class="fa-solid fa-gear mr-3 w-5"></i> Settings
                 </a>
             </nav>
 
             <div class="p-4 border-t border-gray-700">
-                <a href="login.html" class="flex items-center text-sm text-gray-400 hover:text-white transition">
+                <a href="index.html" class="flex items-center text-sm text-gray-400 hover:text-white transition">
                     <i class="fa-solid fa-right-from-bracket mr-2"></i> Logout
                 </a>
             </div>
         </aside>
 
         <div class="flex-1 flex flex-col overflow-hidden">
-            
+
             <header class="h-16 bg-white shadow-sm flex items-center justify-between px-8 z-10">
                 <div class="font-bold text-xl text-gray-800" id="page-header-title">Dashboard</div>
                 <div class="flex items-center space-x-4">
                     <div class="flex items-center">
-                        <div class="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-xs">AD</div>
+                        <div
+                            class="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-xs">
+                            AD</div>
                         <span class="ml-2 text-sm text-gray-600 hidden md:block">admin@fortigrc.com</span>
                     </div>
                 </div>
             </header>
 
             <main class="flex-1 overflow-y-auto p-8 bg-gray-50">
-                
+
                 <div id="view-dashboard" class="tab-content space-y-6">
                     <div class="mb-2">
                         <h2 class="text-2xl font-bold text-gray-800">Dashboard</h2>
@@ -63,20 +71,40 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                         <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex justify-between">
-                            <div><p class="text-xs font-medium text-gray-500 uppercase">Total Risks</p><h3 class="text-3xl font-bold mt-2">8</h3></div>
-                            <div class="p-2 bg-blue-50 rounded-lg text-blue-600 h-10 w-10 flex items-center justify-center"><i class="fa-solid fa-shield"></i></div>
+                            <div>
+                                <p class="text-xs font-medium text-gray-500 uppercase">Total Risks</p>
+                                <h3 class="text-3xl font-bold mt-2">8</h3>
+                            </div>
+                            <div
+                                class="p-2 bg-blue-50 rounded-lg text-blue-600 h-10 w-10 flex items-center justify-center">
+                                <i class="fa-solid fa-shield"></i></div>
                         </div>
                         <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex justify-between">
-                            <div><p class="text-xs font-medium text-gray-500 uppercase">Critical Risks</p><h3 class="text-3xl font-bold mt-2">0</h3></div>
-                            <div class="p-2 bg-red-50 rounded-lg text-red-600 h-10 w-10 flex items-center justify-center"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                            <div>
+                                <p class="text-xs font-medium text-gray-500 uppercase">Critical Risks</p>
+                                <h3 class="text-3xl font-bold mt-2">0</h3>
+                            </div>
+                            <div
+                                class="p-2 bg-red-50 rounded-lg text-red-600 h-10 w-10 flex items-center justify-center">
+                                <i class="fa-solid fa-triangle-exclamation"></i></div>
                         </div>
                         <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex justify-between">
-                            <div><p class="text-xs font-medium text-gray-500 uppercase">High Risks</p><h3 class="text-3xl font-bold mt-2">4</h3></div>
-                            <div class="p-2 bg-orange-50 rounded-lg text-orange-600 h-10 w-10 flex items-center justify-center"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                            <div>
+                                <p class="text-xs font-medium text-gray-500 uppercase">High Risks</p>
+                                <h3 class="text-3xl font-bold mt-2">4</h3>
+                            </div>
+                            <div
+                                class="p-2 bg-orange-50 rounded-lg text-orange-600 h-10 w-10 flex items-center justify-center">
+                                <i class="fa-solid fa-arrow-trend-up"></i></div>
                         </div>
                         <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex justify-between">
-                            <div><p class="text-xs font-medium text-gray-500 uppercase">Mitigated</p><h3 class="text-3xl font-bold mt-2">2</h3></div>
-                            <div class="p-2 bg-green-50 rounded-lg text-green-600 h-10 w-10 flex items-center justify-center"><i class="fa-regular fa-circle-check"></i></div>
+                            <div>
+                                <p class="text-xs font-medium text-gray-500 uppercase">Mitigated</p>
+                                <h3 class="text-3xl font-bold mt-2">2</h3>
+                            </div>
+                            <div
+                                class="p-2 bg-green-50 rounded-lg text-green-600 h-10 w-10 flex items-center justify-center">
+                                <i class="fa-regular fa-circle-check"></i></div>
                         </div>
                     </div>
 
@@ -104,7 +132,8 @@
                         <div class="p-4 border-b border-gray-100 bg-gray-50/50">
                             <div class="relative max-w-md">
                                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-gray-400 text-sm"></i>
-                                <input type="text" id="riskSearch" placeholder="Search risks..." class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                <input type="text" id="riskSearch" placeholder="Search risks..."
+                                    class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-blue-500">
                             </div>
                         </div>
 
@@ -123,7 +152,7 @@
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100" id="tableBody">
-                                    </tbody>
+                                </tbody>
                             </table>
                         </div>
                     </div>
@@ -168,4 +197,5 @@
 
     <script src="script.js"></script>
 </body>
+
 </html>
