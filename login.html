@@ -7,39 +7,119 @@
     <title>Login - FortiGRC</title>
     <link rel="stylesheet" href="css/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Simple utility to hide elements */
+        .hidden {
+            display: none;
+        }
+
+        .switch-text {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.9em;
+        }
+
+        .switch-text a {
+            color: #007bff;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
 </head>
 
 <body>
     <div class="login-container">
         <div class="login-card">
+
             <div class="login-header">
                 <h1>FortiGRC</h1>
-                <p>Sign in to your account</p>
+                <p id="header-subtitle">Sign in to your account</p>
             </div>
 
-            <div id="error-message" class="error-message"></div>
+            <div id="message-box" class="error-message"
+                style="display:none; margin-bottom:1rem; padding:10px; border-radius:4px;"></div>
 
             <form id="loginForm" onsubmit="handleLogin(event)">
                 <div class="form-group">
-                    <label for="email" class="form-label">Email Address</label>
-                    <input type="email" id="email" class="form-input" required placeholder="admin@fortigrc.com">
+                    <label for="login-email" class="form-label">Email Address</label>
+                    <input type="text" id="login-email" class="form-input" required placeholder="Email or Username">
                 </div>
 
                 <div class="form-group">
-                    <label for="password" class="form-label">Password</label>
-                    <input type="password" id="password" class="form-input" required placeholder="••••••••">
+                    <label for="login-password" class="form-label">Password</label>
+                    <input type="password" id="login-password" class="form-input" required placeholder="••••••••">
                 </div>
 
                 <div class="form-group">
                     <button type="submit" class="btn-primary">Sign In</button>
                 </div>
 
-                <a href="#" class="forgot-password">Forgot your password?</a>
+                <p class="switch-text">
+                    Don't have an account? <a onclick="toggleForms('register')">Create User</a>
+                </p>
+                <div style="text-align: center; margin-top: 10px;">
+                    <a href="#" class="forgot-password">Forgot your password?</a>
+                </div>
             </form>
+
+            <form id="registerForm" onsubmit="handleRegister(event)" class="hidden">
+                <div class="form-group">
+                    <label for="reg-first" class="form-label">First Name</label>
+                    <input type="text" id="reg-first" class="form-input" required placeholder="John">
+                </div>
+
+                <div class="form-group">
+                    <label for="reg-last" class="form-label">Last Name</label>
+                    <input type="text" id="reg-last" class="form-input" required placeholder="Doe">
+                </div>
+
+                <div class="form-group">
+                    <label for="reg-email" class="form-label">Email Address</label>
+                    <input type="email" id="reg-email" class="form-input" required placeholder="Email or Username">
+                </div>
+
+                <div class="form-group">
+                    <label for="reg-password" class="form-label">Password</label>
+                    <input type="password" id="reg-password" class="form-input" required
+                        placeholder="Create a password">
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn-primary"
+                        style="background-color: #28a745; border-color: #28a745;">Create Account</button>
+                </div>
+
+                <p class="switch-text">
+                    Already have an account? <a onclick="toggleForms('login')">Sign In</a>
+                </p>
+            </form>
+
         </div>
     </div>
 
     <script src="js/auth.js"></script>
+    <script>
+        // Inline script to handle the UI toggling
+        function toggleForms(mode) {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const subtitle = document.getElementById('header-subtitle');
+            const msgBox = document.getElementById('message-box');
+
+            // Clear any old error messages
+            msgBox.style.display = 'none';
+
+            if (mode === 'register') {
+                loginForm.classList.add('hidden');
+                registerForm.classList.remove('hidden');
+                subtitle.innerText = "Create a new account";
+            } else {
+                registerForm.classList.add('hidden');
+                loginForm.classList.remove('hidden');
+                subtitle.innerText = "Sign in to your account";
+            }
+        }
+    </script>
 </body>
 
 </html>
