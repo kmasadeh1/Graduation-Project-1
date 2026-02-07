@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit Workbench - FortiGRC</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="dash-body">
+
+    <div class="app-shell">
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <i class="fa-solid fa-shield-halved" style="color: var(--primary-color); margin-right: 10px;"></i>
+                <span>FortiGRC</span>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-link">
+                    <i class="fa-solid fa-border-all"></i> Dashboard
+                </a>
+                <a href="compliance.html" class="nav-link">
+                    <i class="fa-solid fa-book"></i> Compliance
+                </a>
+                <a href="assessments.html" class="nav-link active">
+                    <i class="fa-solid fa-clipboard-check"></i> Audit
+                </a>
+                <a href="risks.html" class="nav-link">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Risks
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="fa-solid fa-chart-simple"></i> Reports
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="fa-solid fa-gear"></i> Settings
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="#" id="logout-btn" class="nav-link" onclick="logout()">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Wrapper -->
+        <div class="main-wrapper">
+
+            <!-- Top Navbar -->
+            <header class="top-navbar">
+                <div class="page-title" style="font-weight: bold; font-size: 1.25rem;">Audit Workbench</div>
+                <div class="user-profile flex items-center">
+                    <div
+                        style="height: 32px; width: 32px; background: var(--primary-color); border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold;">
+                        AD
+                    </div>
+                    <span style="margin-left: 10px; font-size: 0.875rem; color: var(--text-muted);"
+                        class="user-email-display">admin@fortigrc.com</span>
+                </div>
+            </header>
+
+            <!-- Main Content Area -->
+            <main class="content-area">
+                <div style="margin-bottom: var(--spacing-lg);">
+                    <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 5px;">Control Assessments</h2>
+                    <p style="color: var(--text-muted);">Manage implementation status and upload evidence.</p>
+                </div>
+
+                <div class="table-wrapper">
+                    <table class="controls-table" id="assessment-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 100px;">Code</th>
+                                <th>Control Details</th>
+                                <th style="width: 150px;">Status</th>
+                                <th style="width: 100px; text-align: right;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Rows loaded via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Management Modal -->
+    <div id="assessmentModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Manage Assessment</h3>
+                <button class="close-modal" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div
+                    style="margin-bottom: var(--spacing-lg); padding-bottom: var(--spacing-md); border-bottom: 1px dashed var(--border-color);">
+                    <div id="modal-control-code"
+                        style="font-size: 0.875rem; color: var(--primary-color); font-weight: bold; margin-bottom: 4px;">
+                    </div>
+                    <div id="modal-control-title" style="font-weight: 600; color: var(--text-main);"></div>
+                </div>
+
+                <form id="assessmentForm" onsubmit="saveAssessment(event)">
+                    <input type="hidden" id="control-id">
+                    <input type="hidden" id="assessment-id">
+
+                    <!-- Status Section -->
+                    <div class="form-group">
+                        <label for="status" class="form-label">Implementation Status</label>
+                        <select id="status" class="form-input">
+                            <option value="Not Started">Not Started</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Compliant">Compliant</option>
+                            <option value="Non-Compliant">Non-Compliant</option>
+                            <option value="Not Applicable">Not Applicable</option>
+                        </select>
+                    </div>
+
+                    <div style="text-align: right; margin-bottom: var(--spacing-lg);">
+                        <button type="submit" class="btn-primary" style="width: auto;">Save Status</button>
+                    </div>
+                </form>
+
+                <!-- Evidence Section -->
+                <div id="evidence-section" style="opacity: 0.5; pointer-events: none;">
+                    <h4 style="font-size: 0.875rem; font-weight: 600; margin-bottom: var(--spacing-sm);">Evidence</h4>
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: var(--spacing-sm);">
+                        Upload documents (PDF, IMG, TXT). *Save status first to enable.*
+                    </p>
+
+                    <div style="display: flex; gap: var(--spacing-sm); margin-bottom: var(--spacing-md);">
+                        <input type="file" id="evidence-file" class="form-input" style="padding: 0.5rem;">
+                        <button type="button" class="btn-primary" style="width: auto;"
+                            onclick="uploadEvidence()">Upload</button>
+                    </div>
+
+                    <div id="evidence-list" class="evidence-list">
+                        <!-- File items loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/assessments.js"></script>
+    <script>
+        // Display user email
+        document.addEventListener('DOMContentLoaded', () => {
+            const email = localStorage.getItem('user_email');
+            if (email) {
+                const emailDisplay = document.querySelector('.user-email-display');
+                if (emailDisplay) emailDisplay.textContent = email;
+            }
+        });
+    </script>
+</body>
+
+</html>
