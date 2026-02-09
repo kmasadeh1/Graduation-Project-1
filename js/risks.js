@@ -14,6 +14,8 @@ function checkTokenAndInit() {
     // Cleanup previous modal state if stuck
     const modal = document.getElementById('riskModal');
     if (modal) modal.classList.add('hidden');
+    const assetModal = document.getElementById('assetModal');
+    if (assetModal) assetModal.classList.add('hidden');
 
     fetchAssets(token);
     fetchRisks(token);
@@ -29,6 +31,9 @@ async function fetchAssets(token) {
         if (response.ok) {
             const assets = await response.json();
             const select = document.getElementById('asset');
+            // Clear existing options except default
+            select.innerHTML = '<option value="">Select an Asset...</option>';
+
             assets.forEach(asset => {
                 const option = document.createElement('option');
                 option.value = asset.id; // Assuming API returns 'id'
@@ -105,7 +110,7 @@ async function createRisk(event) {
     const token = localStorage.getItem('access_token');
 
     const riskData = {
-        asset_id: document.getElementById('asset').value,
+        asset: document.getElementById('asset').value,
         threat: document.getElementById('threat').value,
         vulnerability: document.getElementById('vulnerability').value,
         likelihood: parseInt(document.getElementById('likelihood').value),
@@ -143,4 +148,115 @@ window.openModal = function () { // Expose to global scope for HTML onclick
 
 window.closeModal = function () {
     document.getElementById('riskModal').classList.add('hidden');
+}
+
+// --- Asset Management Logic ---
+
+window.openAssetModal = function () {
+    document.getElementById('assetModal').classList.remove('hidden');
+    const token = localStorage.getItem('access_token');
+    fetchAssetsForManager(token);
+}
+
+window.closeAssetModal = function () {
+    document.getElementById('assetModal').classList.add('hidden');
+}
+
+async function fetchAssetsForManager(token) {
+    const tbody = document.getElementById('asset-list-body');
+    tbody.innerHTML = '<tr><td colspan="3">Loading...</td></tr>';
+
+    try {
+        const response = await fetch(`${API_BASE}/assets/`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+            const assets = await response.json();
+            tbody.innerHTML = '';
+
+            if (assets.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3">No assets found.</td></tr>';
+                return;
+            }
+
+            assets.forEach(asset => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${asset.name}</td>
+                    <td>${asset.value}</td>
+                    <td>
+                        <button class="btn-danger-sm" onclick="deleteAsset(${asset.id})" style="padding: 2px 6px; font-size: 0.75rem; background: var(--risk-high); color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    } catch (error) {
+        console.error('Error fetching assets for manager:', error);
+        tbody.innerHTML = '<tr><td colspan="3">Error loading assets.</td></tr>';
+    }
+}
+
+async function createAsset(event) {
+    event.preventDefault();
+    const token = localStorage.getItem('access_token');
+
+    const assetData = {
+        name: document.getElementById('new-asset-name').value,
+        value: document.getElementById('new-asset-value').value,
+        description: document.getElementById('new-asset-desc').value
+    };
+
+    try {
+        const response = await fetch(`${API_BASE}/assets/`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(assetData)
+        });
+
+        if (response.status === 201) {
+            alert('Asset created successfully!');
+            document.getElementById('createAssetForm').reset();
+            // Refresh Both lists
+            fetchAssetsForManager(token);
+            fetchAssets(token); // Update main dropdown
+        } else {
+            console.error('Failed to create asset');
+            alert('Failed to create asset.');
+        }
+    } catch (error) {
+        console.error('Error creating asset:', error);
+    }
+}
+
+async function deleteAsset(id) {
+    if (!confirm('Are you sure you want to delete this asset? This cannot be undone.')) return;
+
+    const token = localStorage.getItem('access_token');
+
+    try {
+        const response = await fetch(`${API_BASE}/assets/${id}/`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (response.status === 204) {
+            // Refresh Both lists
+            fetchAssetsForManager(token);
+            fetchAssets(token); // Update main dropdown
+        } else {
+            console.error('Failed to delete asset');
+            alert('Failed to delete asset (might be in use).');
+        }
+    } catch (error) {
+        console.error('Error deleting asset:', error);
+    }
 }

@@ -235,24 +235,24 @@ async function uploadEvidence() {
     }
 
     const formData = new FormData();
-    formData.append('file', file); // 'file' field name depends on backend
-    // If backend requires 'title' or other fields, add them here.
+    formData.append('file', file);
+    formData.append('assessment', assessmentId);
+    formData.append('description', file.name);
 
     try {
-        const response = await fetch(`${API_BASE}/assessments/${assessmentId}/upload_evidence/`, {
+        const response = await fetch(`${API_BASE}/evidence/`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`
-                // Note: Content-Type header is NOT set manually for FormData, browser sets it with boundary
             },
             body: formData
         });
 
-        if (response.ok) {
-            const evidence = await response.json();
-            addEvidenceToList(file.name); // Optimistic UI update or use Response data
+        if (response.status === 201) {
+            alert('Evidence uploaded successfully!');
             fileInput.value = '';
-            alert('File uploaded successfully!');
+            // Refresh local data to show new evidence if the API returns it in assessments
+            fetchData(token);
         } else {
             const err = await response.text();
             console.error(err);
@@ -260,6 +260,7 @@ async function uploadEvidence() {
         }
     } catch (error) {
         console.error('Error uploading:', error);
+        alert('Error uploading evidence.');
     }
 }
 

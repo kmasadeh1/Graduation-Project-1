@@ -15,12 +15,13 @@ function checkTokenAndFetchStats() {
 
 async function fetchStats(token) {
     try {
-        const response = await fetch(`${API_BASE}/dashboard/stats/`, {
+        // FIX: Changed endpoint to the one that actually exists and returns stats
+        const response = await fetch(`${API_BASE}/framework/reports/executive/`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
         if (response.status === 401) {
-            logout();
+            logout(); // Assumes auth.js is loaded
             return;
         }
 
@@ -36,22 +37,35 @@ async function fetchStats(token) {
 }
 
 function renderDashboard(data) {
+    // --- DATA ADAPTER (The Fix) ---
+    // We map the API response (score/risk_summary) to match YOUR existing variables (compliance/risks)
+
+    // 1. Map Risks (Direct match)
+    const risks = data.risk_summary || { low: 0, medium: 0, high: 0 };
+
+    // 2. Map Compliance
+    // Since the API returns a 'score' (e.g., 75), we normalize it to 100 so your donut chart works.
+    // Total = 100, Compliant = Score.
+    const score = Math.round(data.compliance_score || 0);
+    const compliance = {
+        total_controls: 100,
+        compliant_controls: score
+    };
+
+    // --- YOUR EXISTING CODE BELOW (Preserved) ---
+
     // 1. Render Summary Numbers
-    // Assuming API structure: { compliance: { total: 10, compliant: 2 }, risks: { low: 1, medium: 2, high: 3 } }
-    // Adjust logic based on actual API response structure from the prompt aggregation endpoint description.
-
-    // Fallback/Safety Check
-    const compliance = data.compliance || { total_controls: 0, compliant_controls: 0 };
-    const risks = data.risks || { low: 0, medium: 0, high: 0 };
-
-    document.getElementById('stat-total-controls').textContent = compliance.total_controls;
-    document.getElementById('stat-assessed').textContent = compliance.compliant_controls; // Or assessed count if available
+    document.getElementById('stat-total-controls').textContent = compliance.total_controls + "%"; // Added % for clarity
+    document.getElementById('stat-assessed').textContent = compliance.compliant_controls + "%";   // Added % for clarity
 
     // 2. Render Compliance Chart (Donut)
     const ctxCompliance = document.getElementById('complianceChart').getContext('2d');
     const nonCompliant = compliance.total_controls - compliance.compliant_controls;
 
-    new Chart(ctxCompliance, {
+    // Destroy chart if it exists to prevent "Canvas is already in use" errors
+    if (window.myComplianceChart) window.myComplianceChart.destroy();
+
+    window.myComplianceChart = new Chart(ctxCompliance, {
         type: 'doughnut',
         data: {
             labels: ['Compliant', 'Not Compliant / Pending'],
@@ -79,7 +93,10 @@ function renderDashboard(data) {
     // 3. Render Risk Chart (Bar)
     const ctxRisk = document.getElementById('riskChart').getContext('2d');
 
-    new Chart(ctxRisk, {
+    // Destroy chart if it exists
+    if (window.myRiskChart) window.myRiskChart.destroy();
+
+    window.myRiskChart = new Chart(ctxRisk, {
         type: 'bar',
         data: {
             labels: ['Low', 'Medium', 'High'],

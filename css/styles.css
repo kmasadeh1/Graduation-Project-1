@@ -1,3 +1,6 @@
+/* =========================================
+   1. CORE VARIABLES & RESET (EXISTING)
+   ========================================= */
 :root {
     /* Colors - Corporate Blue/Grey Theme */
     --primary-color: #2563eb;
@@ -26,6 +29,11 @@
     --success-color: #10b981;
     /* Emerald 500 */
 
+    /* NEW VARIABLES FOR SPLIT LOGIN */
+    --navy-bg: #001f3f;
+    --input-bg: #f8fafc;
+    --radius-full: 9999px;
+
     /* Spacing */
     --spacing-xs: 0.25rem;
     --spacing-sm: 0.5rem;
@@ -41,6 +49,7 @@
     /* Shadows */
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
 }
 
 * {
@@ -101,10 +110,271 @@ ul {
 }
 
 .hidden {
-    display: none;
+    display: none !important;
 }
 
-/* Login Page Styles */
+/* =========================================
+   2. NEW SPLIT-SCREEN LOGIN STYLES
+   (Added for the High-Fidelity Design)
+   ========================================= */
+
+.split-screen-container {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    /* Prevents scrolling on the login page */
+}
+
+/* Left Pane (Navy) */
+.left-pane {
+    flex: 1;
+    background-color: var(--navy-bg);
+    color: white;
+    padding: 2.5rem 4rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+}
+
+.left-pane::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: radial-gradient(circle at top right, rgba(255, 255, 255, 0.05) 0%, transparent 40%);
+    pointer-events: none;
+}
+
+.brand-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    /* Increased gap for better spacing */
+    font-size: 3rem;
+    /* DOUBLED the size (was 1.5rem) */
+    font-weight: 800;
+    /* Extra bold for impact */
+    margin-bottom: 2rem;
+    /* Added space below the logo */
+}
+
+.brand-logo {
+    font-size: 3.5rem;
+    /* Make the icon slightly bigger than the text */
+    color: var(--primary-color);
+    filter: drop-shadow(0 0 10px rgba(37, 99, 235, 0.3));
+    /* Optional: adds a cool glow */
+}
+
+/* Optional: Ensure the text aligns perfectly */
+.brand-name {
+    letter-spacing: -0.02em;
+    /* Tighten letters slightly for a modern look */
+}
+
+.hero-content {
+    max-width: 480px;
+    z-index: 1;
+}
+
+.tagline {
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.hero-heading {
+    font-size: 3rem;
+    line-height: 1.1;
+    font-weight: 700;
+    margin-bottom: 2.5rem;
+    color: white;
+}
+
+.feature-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.feature-list li {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 1.125rem;
+    font-weight: 500;
+}
+
+.feature-list i {
+    color: var(--success-color);
+    /* Green Checkmarks */
+    font-size: 1.25rem;
+}
+
+.footer-copy {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.875rem;
+}
+
+/* Right Pane (White) */
+.right-pane {
+    flex: 1;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+/* Floating Auth Card */
+.auth-card {
+    background: white;
+    width: 100%;
+    max-width: 420px;
+    padding: 2.5rem;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--border-color);
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.auth-header h2 {
+    font-size: 1.75rem;
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
+}
+
+.auth-header p {
+    color: var(--text-muted);
+}
+
+/* Toggle Switch */
+.auth-toggle-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+.auth-toggle {
+    background: var(--input-bg);
+    padding: 4px;
+    border-radius: var(--radius-full);
+    display: flex;
+    width: 100%;
+    max-width: 240px;
+}
+
+.toggle-btn {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 8px 0;
+    border-radius: var(--radius-full);
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.toggle-btn.active {
+    background: white;
+    color: var(--primary-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* New Input Styles with Icons */
+.input-wrapper {
+    position: relative;
+}
+
+.input-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+}
+
+.input-wrapper input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.75rem;
+    /* Space for icon */
+    background-color: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1rem;
+    color: var(--text-main);
+    transition: all 0.2s;
+}
+
+.input-wrapper input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background-color: white;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.name-row {
+    display: flex;
+    gap: 1rem;
+}
+
+.name-row .form-group {
+    flex: 1;
+}
+
+.security-footer {
+    margin-top: 2rem;
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.security-footer i {
+    color: var(--success-color);
+}
+
+/* Responsive adjustments for split screen */
+@media (max-width: 900px) {
+    .split-screen-container {
+        flex-direction: column;
+        overflow-y: auto;
+    }
+
+    .left-pane {
+        padding: 2rem;
+        min-height: 300px;
+    }
+
+    .hero-heading {
+        font-size: 2rem;
+    }
+
+    .right-pane {
+        padding: 1.5rem;
+    }
+}
+
+/* =========================================
+   3. ORIGINAL DASHBOARD STYLES (PRESERVED)
+   ========================================= */
+
+/* (Old Login Container - kept for backward compatibility if needed) */
 .login-container {
     display: flex;
     align-items: center;
@@ -113,7 +383,8 @@ ul {
     background: linear-gradient(135deg, #1e293b 0%, #3b82f6 100%);
 }
 
-.login-card {
+.login-card-old {
+    /* Renamed slightly to avoid conflict if both used */
     background: var(--card-bg);
     padding: var(--spacing-xl);
     border-radius: var(--radius-lg);
@@ -121,22 +392,6 @@ ul {
     width: 100%;
     max-width: 400px;
     margin: var(--spacing-md);
-}
-
-.login-header {
-    text-align: center;
-    margin-bottom: var(--spacing-xl);
-}
-
-.login-header h1 {
-    font-size: 1.5rem;
-    color: var(--text-main);
-    margin-bottom: var(--spacing-xs);
-}
-
-.login-header p {
-    color: var(--text-muted);
-    font-size: 0.875rem;
 }
 
 .form-group {
@@ -151,6 +406,7 @@ ul {
     color: var(--text-main);
 }
 
+/* Standard Input (without icon) */
 .form-input {
     width: 100%;
     padding: 0.75rem;
@@ -176,6 +432,10 @@ ul {
     font-weight: 600;
     cursor: pointer;
     transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
 }
 
 .btn-primary:hover {
@@ -295,7 +555,7 @@ ul {
     margin-left: var(--spacing-md);
 }
 
-/* Responsive */
+/* Responsive Sidebar */
 @media (max-width: 768px) {
     .sidebar {
         position: absolute;
@@ -325,7 +585,6 @@ ul {
 
 .domain-header {
     background-color: #f1f5f9;
-    /* Slate 100 */
     padding: var(--spacing-md) var(--spacing-lg);
     border-bottom: 1px solid var(--border-color);
 }
@@ -522,21 +781,72 @@ ul {
 /* Risk Score Badges */
 .risk-low {
     background-color: #f0fdf4;
-    /* Green 50 */
     color: #15803d;
-    /* Green 700 */
 }
 
 .risk-medium {
     background-color: #fff7ed;
-    /* Orange 50 */
     color: #c2410c;
-    /* Orange 700 */
 }
 
 .risk-high {
     background-color: #fef2f2;
-    /* Red 50 */
     color: #b91c1c;
-    /* Red 700 */
+}
+
+/* Toast Notifications */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: white;
+    padding: 1rem 1.5rem;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 300px;
+    border-left: 4px solid var(--primary-color);
+    animation: slideInRight 0.3s ease-out forwards;
+}
+
+.toast.success {
+    border-left-color: var(--success-color);
+}
+
+.toast.error {
+    border-left-color: var(--danger-color);
+}
+
+.toast i {
+    font-size: 1.25rem;
+}
+
+.toast.success i {
+    color: var(--success-color);
+}
+
+.toast.error i {
+    color: var(--danger-color);
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+        visibility: hidden;
+    }
 }

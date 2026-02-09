@@ -66,7 +66,7 @@ function createDomainCard(domain) {
     const header = document.createElement('div');
     header.className = 'domain-header';
     header.innerHTML = `
-        <h3 class="domain-title">${domain.code || ''} ${domain.title}</h3>
+        <h3 class="domain-title">${domain.code || ''} ${domain.name}</h3>
         <span class="domain-description">${domain.description || ''}</span>
     `;
     card.appendChild(header);
@@ -92,7 +92,7 @@ function createSubDomainSection(subdomain) {
 
     const header = document.createElement('h4');
     header.className = 'subdomain-title';
-    header.textContent = `${subdomain.code || ''} ${subdomain.title}`;
+    header.textContent = `${subdomain.code || ''} ${subdomain.name}`;
     section.appendChild(header);
 
     if (subdomain.description) {

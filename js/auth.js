@@ -7,25 +7,33 @@ const API_BASE_URL = 'http://127.0.0.1:8000';
 // --- 1. CORE API FUNCTIONS ---
 
 // Login Function
+// js/auth.js
+
 async function login(email, password) {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/token/`, {
+        // CORRECTION: Point to the correct endpoint defined in authentication/urls.py
+        const response = await fetch(`${API_BASE_URL}/api/auth/login/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                username: email, // Django SimpleJWT expects 'username' (we map email to it)
+                username: email, // SimpleJWT expects 'username' key even if using email
                 password: password
             })
         });
 
+        // ... rest of the function
+
         if (!response.ok) {
-            throw new Error('Invalid credentials');
+            // This will log the REAL error from the server (e.g., 404, 500, or 401)
+            console.error("Server Error:", response.status, response.statusText);
+            const errorData = await response.json();
+            console.error("Error Details:", errorData);
+            throw new Error('Login failed');
         }
 
         const data = await response.json();
-
         // Save tokens
         localStorage.setItem('access_token', data.access);
         localStorage.setItem('refresh_token', data.refresh);

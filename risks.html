@@ -34,10 +34,10 @@
                 <a href="risks.html" class="nav-link active">
                     <i class="fa-solid fa-triangle-exclamation"></i> Risks
                 </a>
-                <a href="#" class="nav-link">
+                <a href="reports.html" class="nav-link">
                     <i class="fa-solid fa-chart-simple"></i> Reports
                 </a>
-                <a href="#" class="nav-link">
+                <a href="settings.html" class="nav-link">
                     <i class="fa-solid fa-gear"></i> Settings
                 </a>
             </nav>
@@ -74,9 +74,15 @@
                         <p style="color: var(--text-muted);">Identify, assess, and mitigate risks across your
                             organization.</p>
                     </div>
-                    <button class="btn-primary" style="width: auto;" onclick="openModal()">
-                        <i class="fa-solid fa-plus mr-2"></i> Add Risk
-                    </button>
+                    <!--- Buttons Here -->
+                    <div style="display: flex; gap: var(--spacing-sm);">
+                        <button class="btn-secondary" onclick="openAssetModal()">
+                            <i class="fa-solid fa-layer-group mr-2"></i> Manage Assets
+                        </button>
+                        <button class="btn-primary" style="width: auto;" onclick="openModal()">
+                            <i class="fa-solid fa-plus mr-2"></i> Add Risk
+                        </button>
+                    </div>
                 </div>
 
                 <div class="table-wrapper">
@@ -142,9 +148,9 @@
                     <div class="form-group">
                         <label for="status" class="form-label">Status</label>
                         <select id="status" class="form-input">
-                            <option value="Open">Open</option>
-                            <option value="Mitigated">Mitigated</option>
-                            <option value="Accepted">Accepted</option>
+                            <option value="OPEN">Open</option>
+                            <option value="MITIGATED">Mitigated</option>
+                            <option value="ACCEPTED">Accepted</option>
                         </select>
                     </div>
 
@@ -154,6 +160,69 @@
                         <button type="submit" class="btn-primary" style="width: auto;">Save Risk</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Asset Manager Modal -->
+    <div id="assetModal" class="modal-overlay hidden">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3>Manage Assets</h3>
+                <button class="close-modal" onclick="closeAssetModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body"
+                style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-lg); max-height: 60vh; overflow-y: auto;">
+
+                <!-- Left Column: Asset List -->
+                <div>
+                    <h4 style="margin-bottom: var(--spacing-sm);">Existing Assets</h4>
+                    <table class="controls-table" style="font-size: 0.875rem;">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Value</th>
+                                <th style="width: 60px;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="asset-list-body">
+                            <!-- Rows loaded via JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Right Column: Add Form -->
+                <div>
+                    <h4 style="margin-bottom: var(--spacing-sm);">Add New Asset</h4>
+                    <form id="createAssetForm" onsubmit="createAsset(event)"
+                        style="background: var(--bg-secondary); padding: var(--spacing-md); border-radius: var(--radius-md);">
+                        <div class="form-group">
+                            <label for="new-asset-name" class="form-label">Name</label>
+                            <input type="text" id="new-asset-name" class="form-input" required
+                                placeholder="e.g. Database Server">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="new-asset-value" class="form-label">Value</label>
+                            <select id="new-asset-value" class="form-input" required>
+                                <option value="LOW">Low</option>
+                                <option value="MEDIUM">Medium</option>
+                                <option value="MEDIUM">High</option>
+                                <option value="CRITICAL">Critical</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="new-asset-desc" class="form-label">Description</label>
+                            <textarea id="new-asset-desc" class="form-input" rows="3"
+                                placeholder="Brief description..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-primary" style="width: 100%; margin-top: var(--spacing-sm);">
+                            Add Asset
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
