@@ -37,42 +37,67 @@ async function fetchStats(token) {
 }
 
 function renderDashboard(data) {
-    // --- DATA ADAPTER (The Fix) ---
-    // We map the API response (score/risk_summary) to match YOUR existing variables (compliance/risks)
-
-    // 1. Map Risks (Direct match)
-    const risks = data.risk_summary || { low: 0, medium: 0, high: 0 };
-
-    // 2. Map Compliance
-    // Since the API returns a 'score' (e.g., 75), we normalize it to 100 so your donut chart works.
-    // Total = 100, Compliant = Score.
-    const score = Math.round(data.compliance_score || 0);
-    const compliance = {
-        total_controls: 100,
-        compliant_controls: score
+    // 1. Data Adapter / Normalization
+    // Handle either backend structure: data.risks (new) or data.risk_summary (old)
+    const rawRisks = data.risks || data.risk_summary || {};
+    const risks = {
+        low: rawRisks.low || rawRisks.low_risks || 0,
+        medium: rawRisks.medium || rawRisks.medium_risks || 0,
+        high: rawRisks.high || rawRisks.high_risks || 0,
+        mitigated: rawRisks.mitigated || 0
     };
 
-    // --- YOUR EXISTING CODE BELOW (Preserved) ---
+    // Handle either backend structure: data.compliance (new) or data.compliance_score (old flat score)
+    let complianceData = data.compliance;
+    if (!complianceData) {
+        // Fallback if compliance object is missing but we have a score
+        const score = Math.round(data.compliance_score || 0);
+        complianceData = {
+            total_controls: 100, // Dummy base if total unknown
+            compliant_controls: score, // Treat score as count if normalized
+            compliance_percentage: score
+        };
+    } else {
+        // Ensure percentage is calculated if missing but counts exist
+        if (complianceData.compliance_percentage === undefined && complianceData.total_controls > 0) {
+            complianceData.compliance_percentage = (complianceData.compliant_controls / complianceData.total_controls) * 100;
+        }
+    }
 
-    // 1. Render Summary Numbers
-    document.getElementById('stat-total-controls').textContent = compliance.total_controls + "%"; // Added % for clarity
-    document.getElementById('stat-assessed').textContent = compliance.compliant_controls + "%";   // Added % for clarity
+    // Default safe values
+    complianceData.total_controls = complianceData.total_controls || 0;
+    complianceData.compliant_controls = complianceData.compliant_controls || 0;
+    complianceData.compliance_percentage = complianceData.compliance_percentage || 0;
 
-    // 2. Render Compliance Chart (Donut)
+    // 2. Render Text Stats
+    const totalEl = document.getElementById('stat-total-controls');
+    if (totalEl) totalEl.textContent = complianceData.total_controls;
+
+    // Update the "Assessments" number to show percentage compliant
+    const assessEl = document.getElementById('stat-assessed');
+    if (assessEl) {
+        assessEl.textContent = Math.round(complianceData.compliance_percentage) + "%";
+        // Color code the text
+        if (complianceData.compliance_percentage >= 80) assessEl.style.color = '#10b981'; // Green
+        else if (complianceData.compliance_percentage >= 50) assessEl.style.color = '#f59e0b'; // Orange
+        else assessEl.style.color = '#ef4444'; // Red
+    }
+
+    // 3. Render Compliance Chart (Donut)
     const ctxCompliance = document.getElementById('complianceChart').getContext('2d');
-    const nonCompliant = compliance.total_controls - compliance.compliant_controls;
+    const compliantCount = complianceData.compliant_controls;
+    const nonCompliantCount = complianceData.total_controls - compliantCount;
 
-    // Destroy chart if it exists to prevent "Canvas is already in use" errors
     if (window.myComplianceChart) window.myComplianceChart.destroy();
 
     window.myComplianceChart = new Chart(ctxCompliance, {
         type: 'doughnut',
         data: {
-            labels: ['Compliant', 'Not Compliant / Pending'],
+            labels: ['Compliant', 'Non-Compliant / Pending'],
             datasets: [{
-                data: [compliance.compliant_controls, nonCompliant],
+                data: [compliantCount, nonCompliantCount],
                 backgroundColor: [
-                    '#10b981', // Green 500
+                    '#10b981', // Emerald 500
                     '#e2e8f0'  // Slate 200
                 ],
                 borderWidth: 0,
@@ -83,30 +108,33 @@ function renderDashboard(data) {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: {
-                    position: 'bottom'
-                }
+                legend: { position: 'bottom' }
             }
         }
     });
 
-    // 3. Render Risk Chart (Bar)
+    // 4. Render Risk Chart (Bar) - NOW WITH MITIGATED
     const ctxRisk = document.getElementById('riskChart').getContext('2d');
 
-    // Destroy chart if it exists
     if (window.myRiskChart) window.myRiskChart.destroy();
 
     window.myRiskChart = new Chart(ctxRisk, {
         type: 'bar',
         data: {
-            labels: ['Low', 'Medium', 'High'],
+            labels: ['Low', 'Medium', 'High', 'Mitigated'], // Added Mitigated
             datasets: [{
                 label: 'Risk Count',
-                data: [risks.low, risks.medium, risks.high],
+                data: [
+                    risks.low,
+                    risks.medium,
+                    risks.high,
+                    risks.mitigated
+                ],
                 backgroundColor: [
-                    '#10b981', // Green
-                    '#f97316', // Orange
-                    '#ef4444'  // Red
+                    '#22c55e', // Green (Low)
+                    '#f97316', // Orange (Medium)
+                    '#ef4444', // Red (High)
+                    '#3b82f6'  // Blue (Mitigated - Success)
                 ],
                 borderRadius: 4
             }]
@@ -115,21 +143,16 @@ function renderDashboard(data) {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: {
-                    display: false
-                }
+                legend: { display: false }
             },
             scales: {
                 y: {
                     beginAtZero: true,
-                    grid: {
-                        color: '#f1f5f9'
-                    }
+                    grid: { color: '#f1f5f9' },
+                    ticks: { stepSize: 1 }
                 },
                 x: {
-                    grid: {
-                        display: false
-                    }
+                    grid: { display: false }
                 }
             }
         }

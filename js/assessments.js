@@ -131,19 +131,19 @@ window.openAssessmentModal = function (controlId) {
 
     // Reset Form
     document.getElementById('evidence-file').value = '';
-    document.getElementById('evidence-list').innerHTML = '';
 
     if (assessment) {
         document.getElementById('assessment-id').value = assessment.id;
         document.getElementById('status').value = assessment.status;
         enableEvidenceSection(true);
-        // Render existing evidence if API provides it inside assessment object (e.g. assessment.evidence_files)
-        // Note: The prompt didn't specify the exact structure of evidence return, assumming a separate list or embedded. 
-        // For now, we will assume we might need to fetch it or it's empty until uploaded.
+
+        // NEW: Render the evidence from the nested backend data
+        renderEvidence(assessment.evidence);
     } else {
         document.getElementById('assessment-id').value = '';
         document.getElementById('status').value = 'Not Started';
         enableEvidenceSection(false);
+        renderEvidence([]); // Clear list
     }
 
     document.getElementById('assessmentModal').classList.remove('hidden');
@@ -249,30 +249,68 @@ async function uploadEvidence() {
         });
 
         if (response.status === 201) {
-            alert('Evidence uploaded successfully!');
+            showToast('Evidence uploaded successfully!', 'success'); // Use toast if available
             fileInput.value = '';
-            // Refresh local data to show new evidence if the API returns it in assessments
-            fetchData(token);
+
+            // RELOAD DATA to see the new file
+            // We call fetchData(token) to refresh the global assessmentMap
+            await fetchData(token);
+
+            // Re-render the list immediately for the open modal
+            // We need to use controlId to get the updated assessment from the map
+            const controlId = document.getElementById('control-id').value;
+            const updatedAssessment = assessmentMap[controlId];
+
+            if (updatedAssessment) {
+                renderEvidence(updatedAssessment.evidence);
+            }
         } else {
             const err = await response.text();
             console.error(err);
-            alert('Upload failed.');
+            showToast('Upload failed.', 'error');
         }
     } catch (error) {
         console.error('Error uploading:', error);
-        alert('Error uploading evidence.');
+        showToast('Error uploading evidence.', 'error');
     }
 }
 
-function addEvidenceToList(filename) {
+function renderEvidence(evidenceList) {
     const list = document.getElementById('evidence-list');
-    const item = document.createElement('div');
-    item.className = 'evidence-item';
-    item.innerHTML = `
-        <i class="fa-regular fa-file"></i>
-        <span>${filename}</span>
-    `;
-    list.appendChild(item);
+    list.innerHTML = '';
+
+    if (!evidenceList || evidenceList.length === 0) {
+        list.innerHTML = '<p style="color:var(--text-muted); font-size:0.875rem;">No evidence uploaded yet.</p>';
+        return;
+    }
+
+    evidenceList.forEach(file => {
+        const item = document.createElement('div');
+        item.className = 'evidence-item';
+        item.style.display = 'flex';
+        item.style.alignItems = 'center';
+        item.style.justifyContent = 'space-between';
+        item.style.padding = '0.5rem';
+        item.style.background = 'var(--background-color)';
+        item.style.marginBottom = '0.5rem';
+        item.style.borderRadius = 'var(--radius-sm)';
+
+        // Ensure we handle the full URL if needed, or relative path
+        const fileUrl = file.file;
+
+        item.innerHTML = `
+            <div style="display:flex; align-items:center; gap:0.5rem; overflow:hidden;">
+                <i class="fa-regular fa-file-pdf" style="color:var(--danger-color);"></i>
+                <span style="font-size:0.875rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width: 200px;" title="${file.description}">
+                    ${file.file_name || file.description}
+                </span>
+            </div>
+            <a href="${fileUrl}" target="_blank" class="btn-secondary" style="font-size:0.75rem; padding:2px 8px; text-decoration:none;">
+                <i class="fa-solid fa-download"></i>
+            </a>
+        `;
+        list.appendChild(item);
+    });
 }
 
 // Modal Close logic existing in risks.js/auth.js but repeated here for safety if isolated

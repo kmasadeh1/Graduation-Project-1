@@ -1,4 +1,5 @@
 const API_BASE = 'http://127.0.0.1:8000/api';
+let currentRiskId = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     checkTokenAndInit();
@@ -72,7 +73,7 @@ function renderRiskTable(risks) {
     tbody.innerHTML = '';
 
     if (risks.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">No risks found. Add one to get started.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted);">No risks found. Add one to get started.</td></tr>';
         return;
     }
 
@@ -93,6 +94,11 @@ function renderRiskTable(risks) {
                 <span class="badge ${scoreClass}">${risk.risk_score}</span>
             </td>
             <td>${risk.status}</td>
+            <td style="text-align: center;">
+                <button class="btn-secondary" style="padding: 2px 8px; font-size: 0.75rem;" onclick='openEditModal(${JSON.stringify(risk)})'>
+                    <i class="fa-solid fa-pen"></i>
+                </button>
+            </td>
         `;
         tbody.appendChild(tr);
     });
@@ -105,6 +111,7 @@ function getRiskScoreClass(score) {
 }
 
 // Create Risk
+// Create or Update Risk
 async function createRisk(event) {
     event.preventDefault();
     const token = localStorage.getItem('access_token');
@@ -119,30 +126,83 @@ async function createRisk(event) {
     };
 
     try {
-        const response = await fetch(`${API_BASE}/risks/`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(riskData)
-        });
+        let response;
+        if (currentRiskId) {
+            // EDIT MODE (PATCH)
+            response = await fetch(`${API_BASE}/risks/${currentRiskId}/`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(riskData)
+            });
+        } else {
+            // CREATE MODE (POST)
+            response = await fetch(`${API_BASE}/risks/`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(riskData)
+            });
+        }
 
         if (response.ok) {
             closeModal();
             document.getElementById('addRiskForm').reset();
             fetchRisks(token); // Refresh table
+
+            const msg = currentRiskId ? 'Risk updated!' : 'Risk created!';
+            currentRiskId = null; // Reset ID after op
+
+            if (typeof showToast === 'function') {
+                showToast(msg, 'success');
+            } else {
+                alert(msg);
+            }
         } else {
-            console.error('Failed to create risk');
-            alert('Failed to create risk. Please check inputs.');
+            console.error('Failed to save risk');
+            if (typeof showToast === 'function') {
+                showToast('Failed to save risk.', 'error');
+            } else {
+                alert('Failed to save risk. Please check inputs.');
+            }
         }
     } catch (error) {
-        console.error('Error creating risk:', error);
+        console.error('Error saving risk:', error);
     }
 }
 
 // Modal Logic
+// Modal Logic
+window.openEditModal = function (risk) {
+    currentRiskId = risk.id;
+
+    // Populate fields
+    const assetSelect = document.getElementById('asset');
+    // Handle if asset is object or ID
+    const assetId = (typeof risk.asset === 'object' && risk.asset !== null) ? risk.asset.id : risk.asset;
+    assetSelect.value = assetId || '';
+
+    document.getElementById('threat').value = risk.threat;
+    document.getElementById('vulnerability').value = risk.vulnerability;
+    document.getElementById('likelihood').value = risk.likelihood;
+    document.getElementById('impact').value = risk.impact;
+    document.getElementById('status').value = risk.status;
+
+    // Change Modal Title
+    document.querySelector('#riskModal h3').textContent = "Edit Risk";
+
+    // Show Modal
+    document.getElementById('riskModal').classList.remove('hidden');
+}
+
 window.openModal = function () { // Expose to global scope for HTML onclick
+    currentRiskId = null;
+    document.getElementById('addRiskForm').reset();
+    document.querySelector('#riskModal h3').textContent = "Add New Risk";
     document.getElementById('riskModal').classList.remove('hidden');
 }
 

@@ -15,144 +15,112 @@ function checkTokenAndFetch() {
 
 async function fetchFramework(token) {
     const container = document.getElementById('framework-container');
+    container.innerHTML = '<div class="loading-spinner">Loading framework...</div>';
 
     try {
         const response = await fetch(FRAMEWORK_API_URL, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
+            headers: { 'Authorization': `Bearer ${token}` }
         });
 
         if (response.status === 401) {
-            // Token expired or invalid
-            logout(); // From auth.js
+            logout();
             return;
-        }
-
-        if (!response.ok) {
-            throw new Error('Failed to fetch framework data');
         }
 
         const data = await response.json();
         renderFramework(data, container);
 
     } catch (error) {
-        console.error('Error fetching framework:', error);
-        container.innerHTML = `<div class="error-message" style="display:block;">Error loading data: ${error.message}</div>`;
+        console.error('Error:', error);
+        container.innerHTML = `<div class="error-message" style="display:block;">Error: ${error.message}</div>`;
     }
 }
 
 function renderFramework(domains, container) {
-    container.innerHTML = ''; // Clear loading state
+    container.innerHTML = '';
 
-    if (!domains || domains.length === 0) {
-        container.innerHTML = '<p>No compliance data found.</p>';
+    if (!domains.length) {
+        container.innerHTML = '<p>No data found.</p>';
         return;
     }
 
     domains.forEach(domain => {
-        const domainCard = createDomainCard(domain);
-        container.appendChild(domainCard);
+        // 1. Domain Card (The Wrapper)
+        const card = document.createElement('div');
+        card.className = 'domain-card';
+
+        // 2. Header (Clickable)
+        const header = document.createElement('div');
+        header.className = 'domain-header accordion-header';
+        header.innerHTML = `
+            <div>
+                <h3 class="domain-title">${domain.code} - ${domain.name}</h3>
+                <span class="domain-description">${domain.description || ''}</span>
+            </div>
+            <i class="fa-solid fa-chevron-down accordion-icon"></i>
+        `;
+
+        // 3. Content (Hidden by default)
+        const content = document.createElement('div');
+        content.className = 'domain-content accordion-content';
+
+        // Render Subdomains inside
+        if (domain.subdomains) {
+            domain.subdomains.forEach(sub => {
+                const subDiv = document.createElement('div');
+                subDiv.className = 'subdomain-section';
+                subDiv.innerHTML = `
+                    <h4 class="subdomain-title" style="color: var(--primary-color); margin-top: 1rem;">
+                        ${sub.code} ${sub.name}
+                    </h4>
+                `;
+
+                if (sub.controls && sub.controls.length > 0) {
+                    subDiv.appendChild(createControlsTable(sub.controls));
+                }
+                content.appendChild(subDiv);
+            });
+        }
+
+        // 4. Click Event
+        header.addEventListener('click', () => {
+            const icon = header.querySelector('.accordion-icon');
+            icon.classList.toggle('rotate');
+            content.classList.toggle('open');
+        });
+
+        card.appendChild(header);
+        card.appendChild(content);
+        container.appendChild(card);
     });
 }
 
-function createDomainCard(domain) {
-    const card = document.createElement('div');
-    card.className = 'domain-card';
-
-    // Domain Header
-    const header = document.createElement('div');
-    header.className = 'domain-header';
-    header.innerHTML = `
-        <h3 class="domain-title">${domain.code || ''} ${domain.name}</h3>
-        <span class="domain-description">${domain.description || ''}</span>
-    `;
-    card.appendChild(header);
-
-    // SubDomains
-    if (domain.subdomains && domain.subdomains.length > 0) {
-        const content = document.createElement('div');
-        content.className = 'domain-content';
-
-        domain.subdomains.forEach(sub => {
-            const subSection = createSubDomainSection(sub);
-            content.appendChild(subSection);
-        });
-        card.appendChild(content);
-    }
-
-    return card;
-}
-
-function createSubDomainSection(subdomain) {
-    const section = document.createElement('div');
-    section.className = 'subdomain-section';
-
-    const header = document.createElement('h4');
-    header.className = 'subdomain-title';
-    header.textContent = `${subdomain.code || ''} ${subdomain.name}`;
-    section.appendChild(header);
-
-    if (subdomain.description) {
-        const desc = document.createElement('p');
-        desc.className = 'subdomain-description';
-        desc.textContent = subdomain.description;
-        section.appendChild(desc);
-    }
-
-    // Controls Table
-    if (subdomain.controls && subdomain.controls.length > 0) {
-        const table = createControlsTable(subdomain.controls);
-        section.appendChild(table);
-    }
-
-    return section;
-}
-
 function createControlsTable(controls) {
-    const tableWrapper = document.createElement('div');
-    tableWrapper.className = 'table-wrapper';
+    const wrapper = document.createElement('div');
+    wrapper.className = 'table-wrapper';
 
-    const table = document.createElement('table');
-    table.className = 'controls-table';
+    const rows = controls.map(c => `
+        <tr>
+            <td class="control-code">${c.ref_code || c.code}</td>
+            <td>
+                <div class="control-title">${c.title}</div>
+                <div class="control-desc">${c.description}</div>
+            </td>
+            <td><span class="badge badge-gray">Target: L${c.maturity_level}</span></td>
+        </tr>
+    `).join('');
 
-    table.innerHTML = `
-        <thead>
-            <tr>
-                <th style="width: 100px;">Code</th>
-                <th>Title & Description</th>
-                <th style="width: 120px;">Maturity</th>
-            </tr>
-        </thead>
-        <tbody>
-            ${controls.map(control => {
-        const badgeClass = getMaturityBadgeClass(control.maturity_level);
-        return `
+    wrapper.innerHTML = `
+        <table class="controls-table">
+            <thead>
                 <tr>
-                    <td class="control-code">${control.ref_code || control.code}</td>
-                    <td>
-                        <div class="control-title">${control.title}</div>
-                        <div class="control-desc">${control.description || ''}</div>
-                    </td>
-                    <td>
-                        <span class="badge ${badgeClass}">${control.maturity_level || 'N/A'}</span>
-                    </td>
+                    <th style="width:100px;">Code</th>
+                    <th>Control</th>
+                    <th style="width:100px;">Maturity</th>
                 </tr>
-                `;
-    }).join('')}
-        </tbody>
+            </thead>
+            <tbody>${rows}</tbody>
+        </table>
     `;
-
-    tableWrapper.appendChild(table);
-    return tableWrapper;
-}
-
-function getMaturityBadgeClass(level) {
-    const lvl = parseInt(level, 10);
-    if (isNaN(lvl)) return 'badge-gray';
-    if (lvl >= 5) return 'badge-green';
-    if (lvl >= 3) return 'badge-blue';
-    return 'badge-gray';
+    return wrapper;
 }

@@ -68,37 +68,69 @@
             <!-- Main Content Area -->
             <main class="content-area">
 
-                <div style="max-width: 600px; margin: 0 auto;">
-                    <h2 style="font-size: 1.5rem; margin-bottom: var(--spacing-lg);">Account Security</h2>
+                <div style="max-width: 900px; margin: 0 auto;">
+                    <h2 style="font-size: 1.5rem; margin-bottom: var(--spacing-lg);">Settings</h2>
 
-                    <!-- Security Settings Card -->
                     <div
-                        style="background: white; padding: var(--spacing-xl); border-radius: var(--radius-lg); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: var(--spacing-lg);">
 
-                        <h3
-                            style="font-size: 1.125rem; margin-bottom: var(--spacing-md); border-bottom: 1px solid var(--border-color); padding-bottom: var(--spacing-sm);">
-                            Change Password</h3>
+                        <!-- Profile Information Card -->
+                        <div class="card"
+                            style="background: white; padding: var(--spacing-xl); border-radius: var(--radius-lg); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+                            <h3
+                                style="font-size: 1.125rem; margin-bottom: var(--spacing-md); border-bottom: 1px solid var(--border-color); padding-bottom: var(--spacing-sm);">
+                                Profile Information
+                            </h3>
+                            <form id="profileForm" onsubmit="handleProfileUpdate(event)">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md);">
+                                    <div class="form-group">
+                                        <label class="form-label">First Name</label>
+                                        <input type="text" id="first-name" class="form-input">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Last Name</label>
+                                        <input type="text" id="last-name" class="form-input">
+                                    </div>
+                                </div>
 
-                        <form id="changePasswordForm" onsubmit="handlePasswordChange(event)">
-                            <div class="form-group">
-                                <label for="current-password" class="form-label">Current Password</label>
-                                <input type="password" id="current-password" class="form-input" required>
-                            </div>
+                                <div class="form-group">
+                                    <label class="form-label">Email Address</label>
+                                    <input type="email" id="email" class="form-input">
+                                </div>
 
-                            <div class="form-group">
-                                <label for="new-password" class="form-label">New Password</label>
-                                <input type="password" id="new-password" class="form-input" required>
-                            </div>
+                                <button type="submit" class="btn-primary"
+                                    style="margin-top: var(--spacing-md); width: auto;">
+                                    Save Changes
+                                </button>
+                            </form>
+                        </div>
 
-                            <div class="form-group">
-                                <label for="confirm-password" class="form-label">Confirm New Password</label>
-                                <input type="password" id="confirm-password" class="form-input" required>
-                            </div>
-
-                            <button type="submit" class="btn-primary" style="margin-top: var(--spacing-md);">
-                                Update Password
-                            </button>
-                        </form>
+                        <!-- Account Security Card -->
+                        <div class="card"
+                            style="background: white; padding: var(--spacing-xl); border-radius: var(--radius-lg); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+                            <h3
+                                style="font-size: 1.125rem; margin-bottom: var(--spacing-md); border-bottom: 1px solid var(--border-color); padding-bottom: var(--spacing-sm);">
+                                Account Security
+                            </h3>
+                            <form id="changePasswordForm" onsubmit="handlePasswordChange(event)">
+                                <div class="form-group">
+                                    <label class="form-label">Current Password</label>
+                                    <input type="password" id="current-password" class="form-input" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">New Password</label>
+                                    <input type="password" id="new-password" class="form-input" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Confirm Password</label>
+                                    <input type="password" id="confirm-password" class="form-input" required>
+                                </div>
+                                <button type="submit" class="btn-secondary"
+                                    style="margin-top: var(--spacing-md); width: auto; color: var(--danger-color); border-color: var(--danger-color);">
+                                    Update Password
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
 
